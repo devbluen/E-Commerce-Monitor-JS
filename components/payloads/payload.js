@@ -7,7 +7,7 @@ async function Payloads(payload, name, client, discordInternal) {
         if(p.percent >= process.env.PROMOTION_MINIMUM_VALUE && cache.verify(p.link, p.new_price)) {
             await discordInternal.SendPromotion(client, name.toUpperCase(), p);
             cache.save(p.link, p.new_price);
-            await func.delay(1500);
+            await func.delay(1000 * (process.env.DISCORD_DELAY_MESSAGE || 5));
         }
     }
 }
