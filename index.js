@@ -10,6 +10,7 @@ const func = require('./components/functions.js');
 // Payloads
 const payload = require('./components/payloads/payload.js');
 const terabyteshop = require("./components/payloads/terabyte.js");
+const kabumshop = require("./components/payloads/kabum.js");
 
 // Variables
 const client = new discord.Client({
@@ -27,6 +28,10 @@ async function main() {
         // Terabyte Promotions
         const productsTera = await terabyteshop.getPromotions();
         await payload.Payloads(productsTera, 'Terabyte', client, discordInternal);
+
+        // Kabum Promotions
+        const productsKabum = await kabumshop.getPromotions();
+        await payload.Payloads(productsKabum, 'Kabum', client, discordInternal);
 
         // Others
         console.log(`⏳ Waiting ${process.env.SYSTEM_LOOP} minutes to check the promotions again.`);
