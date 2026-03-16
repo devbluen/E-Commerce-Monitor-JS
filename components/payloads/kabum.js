@@ -9,6 +9,8 @@ async function getPromotions(callback) {
         const browser = await puppeteer.launch({
             headless: true,
             slowMo: 100,
+            waitUntil: 'domcontentloaded',
+			timeout: 60000,
             args: [
                 '--no-sandbox',
                 '--disable-setuid-sandbox',
