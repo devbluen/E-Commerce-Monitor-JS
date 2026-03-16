@@ -3,6 +3,12 @@ const cache = require("../cache.js");
 const func = require("../functions.js");
 
 async function Payloads(payload, name, client, discordInternal) {
+
+    if (!products || !Array.isArray(products)) {
+        console.log(`⚠️ No products received ${name.toUpperCase()}`);
+        return;
+    }
+
     for (const p of payload) {
         if(p.percent >= process.env.PROMOTION_MINIMUM_VALUE && cache.verify(p.link, p.new_price)) {
             await discordInternal.SendPromotion(client, name.toUpperCase(), p);

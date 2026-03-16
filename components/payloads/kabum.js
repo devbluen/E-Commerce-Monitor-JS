@@ -58,7 +58,6 @@ async function getPromotions(callback) {
                         image: productImage,
                         link: productLink
                     });
-
                 }
             });
 
