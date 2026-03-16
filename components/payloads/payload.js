@@ -4,7 +4,7 @@ const func = require("../functions.js");
 
 async function Payloads(payload, name, client, discordInternal) {
 
-    if (!products || !Array.isArray(products)) {
+    if (!payload || !Array.isArray(payload)) {
         console.log(`⚠️ No products received ${name.toUpperCase()}`);
         return;
     }
