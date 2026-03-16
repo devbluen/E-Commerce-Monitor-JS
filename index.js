@@ -30,8 +30,9 @@ async function main() {
         await payload.Payloads(productsTera, 'Terabyte', client, discordInternal);
 
         // Kabum Promotions
-        const productsKabum = await kabumshop.getPromotions();
-        await payload.Payloads(productsKabum, 'Kabum', client, discordInternal);
+        await kabumshop.getPromotions(async (productsKabum) => {
+            await payload.Payloads(productsKabum, 'Kabum', client, discordInternal);
+        });
 
         // Others
         console.log(`⏳ Waiting ${process.env.SYSTEM_LOOP} minutes to check the promotions again.`);
