@@ -9,16 +9,13 @@ async function getPromotions() {
     try
     {
         browser = await puppeteer.launch({
-            headless: true,
-            userDataDir: path.join(__dirname, 'puppeteer_terabyte_cache'),
+            headless: !process.env.SHOW_NAVIGATOR,
             args: [
                 '--no-sandbox',
                 '--disable-setuid-sandbox',
                 '--disable-dev-shm-usage',
                 '--disable-accelerated-2d-canvas',
                 '--no-first-run',
-                '--no-zygote',
-                '--single-process',
                 '--disable-gpu',
                 '--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'
             ]
@@ -35,7 +32,7 @@ async function getPromotions() {
         });
 
         await page.goto('https://www.terabyteshop.com.br/promocoes', { 
-            waitUntil: 'networkidle2', 
+            waitUntil: 'domcontentloaded', 
             timeout: 90000 
         });
 
@@ -49,12 +46,14 @@ async function getPromotions() {
 
         console.log("✅ Obtaining products at terabyte");
         $('.product-item').each((index, element) => {
-            const productName = $(element).find('.product-item__name').text().trim();
-            const productPercent = parseInt($(element).find('.product-promo-bar__percent').text().replace("%", ""));
-            const productNewPrice = $(element).find('.product-item__new-price span').text().trim();
-            const productOldPrice = $(element).find('.product-item__old-price span').text().trim();
-            const productImage = $(element).find('img.image-thumbnail').attr('src');
-            const productLink = $(element).find('a.product-item__image').attr('href');
+            const el = $(element);
+
+            const productName = el.find('.product-item__name').text().trim();
+            const productPercent = parseInt(el.find('.product-promo-bar__percent').text().replace("%", ""));
+            const productNewPrice = el.find('.product-item__new-price span').text().trim();
+            const productOldPrice = el.find('.product-item__old-price span').text().trim();
+            const productImage = el.find('img.image-thumbnail').attr('src');
+            const productLink = el.find('a.product-item__image').attr('href');
 
             if(productPercent && productPercent > 0) {
                 products.push({
