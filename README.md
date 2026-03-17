@@ -15,10 +15,19 @@ npm install
 npx puppeteer browsers install chrome
 ```
 
-#### 3. Edit .env
-You need to remove `[REMOVE_THIS]` from the .env file and configure it.
+#### 3. Configure environment variables
+Create a `.env` file in the root folder
+```bash
+DISCORD_BOT_TOKEN = 
+DISCORD_ROOM = 
+DISCORD_MENTION_ROLE = 
+DISCORD_DELAY_MESSAGE = 5
+SYSTEM_LOOP = 10
+PROMOTION_MINIMUM_VALUE = 30
+SHOW_NAVIGATOR = false
+```
 
-#### 4. Run
+#### 4. Run System
 ```bash
 node .
 ```

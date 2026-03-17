@@ -9,7 +9,7 @@ async function getPromotions() {
     try
     {
         browser = await puppeteer.launch({
-            headless: !process.env.SHOW_NAVIGATOR,
+            headless: process.env.SHOW_NAVIGATOR !== "true",
             args: [
                 '--no-sandbox',
                 '--disable-setuid-sandbox',
