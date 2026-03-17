@@ -102,7 +102,6 @@ async function getPromotions(callback) {
                 }
             });
 
-            console.log(products);
             await callback(products);
         }
     }
