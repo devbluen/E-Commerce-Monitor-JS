@@ -1,23 +1,44 @@
 
 const puppeteer = require('puppeteer');
 const cheerio = require('cheerio');
+const path = require('path');
 
 async function getPromotions() {
 
+    let browser;
     try
     {
-        const browser = await puppeteer.launch({
+        browser = await puppeteer.launch({
             headless: true,
-            slowMo: 100,
+            userDataDir: path.join(__dirname, 'puppeteer_terabyte_cache'),
             args: [
                 '--no-sandbox',
                 '--disable-setuid-sandbox',
+                '--disable-dev-shm-usage',
+                '--disable-accelerated-2d-canvas',
+                '--no-first-run',
+                '--no-zygote',
+                '--single-process',
+                '--disable-gpu',
                 '--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'
             ]
         });
         const page = await browser.newPage();
 
-        await page.goto('https://www.terabyteshop.com.br/promocoes');
+        await page.setRequestInterception(true);
+        page.on('request', (req) => {
+            if (['image', 'font', 'stylesheet', 'media'].includes(req.resourceType())) {
+                req.abort();
+            } else {
+                req.continue();
+            }
+        });
+
+        await page.goto('https://www.terabyteshop.com.br/promocoes', { 
+            waitUntil: 'networkidle2', 
+            timeout: 90000 
+        });
+
         console.log("⏳ Waiting 5 seconds on Terabyte");
         await new Promise(r => setTimeout(r, 5000));    // wait 5s
 
@@ -46,13 +67,15 @@ async function getPromotions() {
                 });
             }
         });
-
-        await browser.close();
         return products;
     }
     catch(error) {
         console.error("⚠️ Terabyte module error", error);
-        return undefined;
+        return [];
+    }
+    finally {
+        if(browser)
+            await browser.close().catch(e => console.error("Error closing browser:", e.message));
     }
 }
 

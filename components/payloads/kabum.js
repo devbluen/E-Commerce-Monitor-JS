@@ -1,25 +1,44 @@
 
 const puppeteer = require('puppeteer');
 const cheerio = require('cheerio');
+const path = require('path');
 
 async function getPromotions(callback) {
 
+    let browser;
     try
     {
-        const browser = await puppeteer.launch({
+        browser = await puppeteer.launch({
             headless: true,
-            slowMo: 100,
-            waitUntil: 'domcontentloaded',
-			timeout: 60000,
+            userDataDir: path.join(__dirname, 'puppeteer_kabum_cache'),
             args: [
                 '--no-sandbox',
                 '--disable-setuid-sandbox',
+                '--disable-dev-shm-usage',
+                '--disable-accelerated-2d-canvas',
+                '--no-first-run',
+                '--no-zygote',
+                '--single-process',
+                '--disable-gpu',
                 '--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'
             ]
         });
         const page = await browser.newPage();
 
-        await page.goto('https://www.kabum.com.br/acabaramdechegar?page_number=1&page_size=100&facet_filters=&sort=-date_product_arrived&variant=null');
+        await page.setRequestInterception(true);
+        page.on('request', (req) => {
+            if (['image', 'font', 'stylesheet', 'media'].includes(req.resourceType())) {
+                req.abort();
+            } else {
+                req.continue();
+            }
+        });
+
+        await page.goto('https://www.kabum.com.br/acabaramdechegar?page_number=1&page_size=100&facet_filters=&sort=-date_product_arrived&variant=null', { 
+            waitUntil: 'networkidle2', 
+            timeout: 90000 
+        });
+
         console.log("⏳ Waiting 5 seconds on Kabum");
         await new Promise(r => setTimeout(r, 5000));    // wait 5s
 
@@ -34,7 +53,12 @@ async function getPromotions(callback) {
         for (let index = 1; index < lastPage; index++) {
 
             console.log(`📜 Checking page ${index}/${lastPage} of the Kabum website.`);
-            await page.goto(`https://www.kabum.com.br/acabaramdechegar?page_number=${index}&page_size=100&facet_filters=&sort=-date_product_arrived&variant=null`);
+
+            await page.goto(`https://www.kabum.com.br/acabaramdechegar?page_number=${index}&page_size=100&facet_filters=&sort=-date_product_arrived&variant=null`, { 
+                waitUntil: 'networkidle2', 
+                timeout: 90000 
+            });
+
             await new Promise(r => setTimeout(r, 2000));    // wait 2s
 
             console.log(`✅ Obtaining products from the page`);
@@ -63,11 +87,13 @@ async function getPromotions(callback) {
 
             await callback(products);
         }
-
-        await browser.close();
     }
     catch(error) {
         console.error("⚠️ Kabum module error", error);
+    }
+    finally {
+        if(browser)
+            await browser.close().catch(e => console.error("Error closing browser:", e.message));
     }
 }
 

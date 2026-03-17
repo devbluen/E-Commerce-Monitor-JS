@@ -1,3 +1,4 @@
 node_modules/
 .env
 promotions_cache.json
+puppeteer_*_cache/
